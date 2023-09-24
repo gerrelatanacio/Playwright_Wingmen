@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { test, expect, Page } from "@playwright/test";
 
 test("Validate WISP login", async ({ page }) => {
   // await page.goto(
@@ -43,6 +43,7 @@ test("validate checkboxes", async ({ page }) => {
 });
 
 test("handling alerts", async ({ page }) => {
+  test.setTimeout(120000);
   await page.goto(
     "https://www.Lambdatest.com/selenium-playground/javascript-alert-box-demo"
   );
@@ -52,6 +53,7 @@ test("handling alerts", async ({ page }) => {
     //WHEN IT HAS A PROMPT INPUT FIELD
     const text = alert.defaultValue();
     console.log(text);
+    await page.waitForTimeout(5000);
     await alert.accept("GERREL ATANACIO");
   });
   await page.getByText("Click Me").nth(2).click();
@@ -106,4 +108,136 @@ test.only("handling jquery dropdown", async ({ page }) => {
       })
       .click();
   }
+});
+
+test("Interact with frames - method names", async ({ page }) => {
+  await page.goto("https://letcode.in/frame");
+  const allframes = page.frames();
+  console.log("No.of frames: " + allframes.length);
+
+  const firstFrame = page.frame("firstFr");
+  await firstFrame?.locator("input[name='fname']").fill("Gerrel");
+  await firstFrame?.locator("input[name='lname']").fill("Atanacio");
+  await page.waitForTimeout(5000);
+  expect(
+    await firstFrame?.locator("[class*='has-text-info']").textContent()
+  ).toContain("Gerrel Atanacio");
+});
+
+test("Interact with frames - method locator", async ({ page }) => {
+  await page.goto("https://letcode.in/frame");
+  const allframes = page.frames();
+  console.log("No.of frames: " + allframes.length);
+
+  const frame = page.frameLocator("#firstFr");
+  await frame.locator("input[name='fname']").fill("Gerrel");
+  await frame.locator("input[name='lname']").fill("Atanacio");
+  await page.waitForTimeout(5000);
+  expect(
+    await frame.locator("[class*='has-text-info']").textContent()
+  ).toContain("Gerrel Atanacio");
+});
+
+test("Interact with nested frames - method locator", async ({ page }) => {
+  await page.goto("https://letcode.in/frame");
+  const allframes = page.frames();
+  console.log("No.of frames: " + allframes.length);
+
+  const frame = page.frameLocator("#firstFr");
+  await frame.locator("input[name='fname']").fill("Gerrel");
+  await frame.locator("input[name='lname']").fill("Atanacio");
+  expect(
+    await frame.locator("[class*='has-text-info']").textContent()
+  ).toContain("Gerrel Atanacio");
+
+  const innerFrame = frame.frameLocator("iframe[src='innerFrame']");
+  await innerFrame
+    .locator("input[name='email']")
+    .fill("GERREL.ATANACIO@gmail.com");
+});
+
+test("Interact with a new Single Window or Tab", async ({ page }) => {
+  await page.goto(
+    "https://www.lambdatest.com/selenium-playground/window-popup-modal-demo"
+  );
+  console.log(page.url());
+
+  const [singlePagePopup] = await Promise.all([
+    page.waitForEvent("popup"),
+    page.locator("a[title='Follow @Lambdatesting on Twitter']").click(),
+  ]);
+
+  console.log(singlePagePopup.url());
+  // singlePagePopup.locator("h1").filL("WonderPot")
+});
+
+test("Interact with multiple windows", async ({ page }) => {
+  await page.goto(
+    "https://www.lambdatest.com/selenium-playground/window-popup-modal-demo"
+  );
+  console.log(page.url());
+
+  const [multiPagePopups] = await Promise.all([
+    page.waitForEvent("popup"),
+    page.locator("#followboth").click(),
+  ]);
+
+  await page.waitForLoadState();
+  const pages = multiPagePopups.context().pages();
+  console.log("No. of Pages: " + pages.length);
+
+  pages.forEach((page) => {
+    console.log(page.url());
+  });
+
+  //how to uniquely identify desired page from pages from the same context - sample we have to select facebook page from the pages array.
+  let fbPage: Page;
+  for (let index = 0; index < pages.length; index++) {
+    if (pages[index].url().toString().includes("facebook")) {
+      fbPage = pages[index];
+      console.log(fbPage.url());
+    }
+  }
+  console.log(
+    await fbPage.textContent(
+      "#login_popup_cta_form > div > div:nth-child(5) > div  div > span > span"
+    )
+  );
+  await fbPage.context().close();
+});
+
+test.only("verify multiple tabs", async ({ context }) => {
+  const page = await context.newPage();
+  await page.goto("https://www.programsbuzz.com/");
+
+  const [newPage] = await Promise.all([
+    context.waitForEvent("page"),
+    page.locator("a[href='http://autopract.com']").click(),
+  ]);
+
+  await newPage.waitForLoadState();
+  console.log(await newPage.title());
+  console.log(await page.title());
+
+  await newPage.context().close();
+});
+
+test("Multi Tabbing", async ({ page, context }) => {
+  test.setTimeout(120000);
+  await page.goto("https://www.amazon.co.uk");
+
+  // Create second tab
+  const newTab = await context.newPage();
+
+  // goto ebay
+  await newTab.goto("https://www.ebay.co.uk");
+
+  // bring amazon to the front
+  await page.bringToFront();
+
+  // interact with second tab - even the initial focus is currently at the amazon again after bringToFront() method
+  await newTab.locator("#gh-ac").fill("Pokemon");
+  await page.waitForTimeout(2000);
+  await newTab.close();
+  await context.close();
 });
