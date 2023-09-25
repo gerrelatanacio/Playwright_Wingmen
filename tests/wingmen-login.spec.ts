@@ -1,4 +1,5 @@
 import { test, expect, Page } from "@playwright/test";
+import moment from "moment";
 
 test("Validate WISP login", async ({ page }) => {
   // await page.goto(
@@ -240,4 +241,57 @@ test("Multi Tabbing", async ({ page, context }) => {
   await page.waitForTimeout(2000);
   await newTab.close();
   await context.close();
+});
+
+test("date picker using fill method", async ({ page }) => {
+  await page.goto(
+    "https://www.lambdatest.com/selenium-playground/bootstrap-date-picker-demo"
+  );
+  let date = "1993-05-24";
+  await page.locator("#birthday").fill(date);
+  await page.waitForTimeout(3000);
+  await page.close();
+});
+
+test("date picker using moment method", async ({ page }) => {
+  await page.goto(
+    "https://www.lambdatest.com/selenium-playground/bootstrap-date-picker-demo"
+  );
+
+  await selecDate(24, "March 2021");
+  await page.reload();
+  await selecDate(19, "March 2025");
+  await page.reload();
+  await selecDate(15, "September 2023");
+  await page.waitForTimeout(3000);
+
+  async function selecDate(date: number, monthAndYearToSelect: string) {
+    await page.locator("#datepicker > [placeholder*='Start']").click();
+    const currentMonth = page.locator(
+      ".datepicker-days .table-condensed:nth-child(1) thead .datepicker-switch"
+    );
+    const prevButton = page.locator(
+      ".datepicker-days .table-condensed:nth-child(1) thead .prev"
+    );
+
+    const nextButton = page.locator(
+      ".datepicker-days .table-condensed:nth-child(1) thead .next"
+    );
+
+    //const monthAndYearToSelect = "March 2015";
+    const isItPastMonth = moment(monthAndYearToSelect, "MMMM YYYY").isBefore();
+    console.log("Month and Year to Select: " + monthAndYearToSelect);
+    console.log("Current month : " + (await currentMonth.textContent()));
+    console.log("Is it a Past Month?: " + isItPastMonth);
+
+    while ((await currentMonth.textContent()) != monthAndYearToSelect) {
+      if (isItPastMonth) {
+        await prevButton.click();
+      } else {
+        await nextButton.click();
+      }
+    }
+
+    await page.locator(`//td[@class='day'][text()=${date}]`).click();
+  }
 });
