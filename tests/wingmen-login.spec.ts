@@ -89,7 +89,7 @@ test("handling multi-select dropdown", async ({ page }) => {
     .selectOption([{ label: "Florida" }, { value: "Texas" }, { index: 4 }]); // multi-select dropdown accepts arrays of values
 });
 
-test.only("handling jquery dropdown", async ({ page }) => {
+test("handling jquery dropdown", async ({ page }) => {
   await page.goto(
     "https://www.lambdatest.com/selenium-playground/jquery-dropdown-search-demo"
   );
@@ -207,7 +207,7 @@ test("Interact with multiple windows", async ({ page }) => {
   await fbPage.context().close();
 });
 
-test.only("verify multiple tabs", async ({ context }) => {
+test("verify multiple tabs", async ({ context }) => {
   const page = await context.newPage();
   await page.goto("https://www.programsbuzz.com/");
 
