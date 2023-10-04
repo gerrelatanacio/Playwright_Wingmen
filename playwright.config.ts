@@ -10,7 +10,8 @@ import { defineConfig, devices } from "@playwright/test";
  * See https://playwright.dev/docs/test-configuration.
  */
 export default defineConfig({
-  testDir: "./tests",
+  testDir: "./tests/",
+  testMatch: ["wingmen-prod-sanity-withCustomizedFixture.spec.ts"],
   /* Run tests in files in parallel */
   fullyParallel: true,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
@@ -38,7 +39,7 @@ export default defineConfig({
     },
     // launchOptions: { slowMo: 1000 },
     /* Base URL to use in actions like `await page.goto('/')`. */
-    // baseURL: 'http://127.0.0.1:3000',
+    baseURL: "http://127.0.0.1:3000",
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: "on-first-retry",
@@ -60,9 +61,17 @@ export default defineConfig({
     //   },
     // },
     {
+      name: "setup",
+      testDir: "./",
+      testMatch: "global-setup.ts",
+    },
+
+    {
       name: "chromium",
+      dependencies: ["setup"],
       use: {
         ...devices["Desktop Chromium"],
+        storageState: "./LoginWISPAuth.json",
         viewport: {
           width: 1920,
           height: 1080,

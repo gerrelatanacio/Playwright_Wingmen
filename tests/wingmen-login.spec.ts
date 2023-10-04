@@ -183,12 +183,15 @@ test("Interact with multiple windows", async ({ page }) => {
     page.locator("#followboth").click(),
   ]);
 
-  await page.waitForLoadState();
+  await multiPagePopups.waitForLoadState("domcontentloaded");
   const pages = multiPagePopups.context().pages();
   console.log("No. of Pages: " + pages.length);
+  console.log([multiPagePopups].toString());
+  let index = 0;
 
   pages.forEach((page) => {
-    console.log(page.url());
+    console.log(`FOREACH at index: ${index} -URL ${page.url()}`);
+    index++;
   });
 
   //how to uniquely identify desired page from pages from the same context - sample we have to select facebook page from the pages array.
@@ -196,7 +199,7 @@ test("Interact with multiple windows", async ({ page }) => {
   for (let index = 0; index < pages.length; index++) {
     if (pages[index].url().toString().includes("facebook")) {
       fbPage = pages[index];
-      console.log(fbPage.url());
+      console.log("Facebook Identified Uniquely " + fbPage.url());
     }
   }
   console.log(
@@ -294,4 +297,61 @@ test("date picker using moment method", async ({ page }) => {
 
     await page.locator(`//td[@class='day'][text()=${date}]`).click();
   }
+});
+
+test("Download files", async ({ page }) => {
+  await page.goto(
+    "https://www.lambdatest.com/selenium-playground/generate-file-to-download-demo"
+  );
+  await page.locator("#textbox").type("Like, Share, comment & subs");
+  await page.locator("id=create").click();
+
+  const download = await Promise.all([
+    page.waitForEvent("download"),
+    page.locator("id=link-to-download").click(),
+  ]);
+
+  console.log(download);
+  console.log("Download 0: " + download[0]);
+  console.log("Download 1: " + download[1]);
+  const path = download[0].suggestedFilename();
+  console.log(path);
+  await download[0].saveAs(path);
+});
+
+test("Upload files", async ({ page }) => {
+  await page.goto(
+    "https://www.lambdatest.com/selenium-playground/upload-file-demo"
+  );
+  await page
+    .locator("input[type='file']")
+    .setInputFiles("C:/Users/gerre/Downloads/Wingmen - PUCS - Specs.pdf");
+
+  await page.waitForTimeout(5000);
+  expect(await page.locator("#error").textContent()).toContain(
+    "File Successfully Uploaded"
+  );
+});
+
+test("Upload files 2", async ({ page }) => {
+  //test.setTimeout(45000);
+  await page.goto(
+    "https://testpages.eviltester.com/styled/file-upload-test.html"
+  );
+  // await page. setInputFiles("input [type= 'file']",
+  // ["uploadItems/apple.png"],["uploadItems/mango. png"]);
+
+  await page.waitForTimeout(3000);
+  const [uploadFiles] = await Promise.all([
+    page.waitForEvent("filechooser"),
+    page.locator("input[type='file']").dblclick(),
+  ]);
+  const isMultiple = uploadFiles.isMultiple();
+  console.log(isMultiple);
+  await uploadFiles.setFiles([
+    "C:/Users/gerre/Downloads/Wingmen - PUCS - Specs.pdf",
+    // "C:/Users/gerre/Downloads/sql-basics-cheat-sheet-a4.pdf",
+  ]);
+
+  await page.waitForTimeout(5000);
 });
