@@ -1,7 +1,7 @@
 import { test as base } from "@playwright/test";
-import LoginPage from "../tests/pages/LoginPage";
-import HomePage from "../tests/pages/HomePage";
-import CICSPage from "../tests/pages/CICSPage";
+import LoginPage from "../pages/LoginPage";
+import HomePage from "../pages/HomePage";
+import CICSPage from "../pages/CICSPage";
 
 type customizedFixture = {
   loginPage: LoginPage;
