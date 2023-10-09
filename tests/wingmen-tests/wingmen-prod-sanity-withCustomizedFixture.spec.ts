@@ -1,4 +1,7 @@
-import { test, expect } from "../playwright-files/fixtures/customizedFixture";
+import {
+  test,
+  expect,
+} from "../../playwright-files/fixtures/customizedFixture";
 
 const url = "https://wmn-t-wisp-wa.azurewebsites.net/";
 const email = "demo_wisp_admin@wingmen.dk";

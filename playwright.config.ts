@@ -10,8 +10,8 @@ import { defineConfig, devices } from "@playwright/test";
  * See https://playwright.dev/docs/test-configuration.
  */
 export default defineConfig({
-  testDir: "./tests/",
-  testMatch: ["wingmen-prod-sanity-withCustomizedFixture.spec.ts"],
+  //testDir: "./tests/",
+  //testMatch: ["wingmen-prod-sanity-withCustomizedFixture.spec.ts"],
   /* Run tests in files in parallel */
   fullyParallel: true,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
@@ -69,9 +69,25 @@ export default defineConfig({
     {
       name: "chromium",
       dependencies: ["setup"],
+      testDir: "./tests/wingmen-tests",
       use: {
         ...devices["Desktop Chromium"],
         storageState: "./LoginWISPAuth.json",
+        viewport: {
+          width: 1920,
+          height: 1080,
+        },
+        // launchOptions: {
+        //   args: ["--start-maximized"],
+        // },
+      },
+    },
+
+    {
+      name: "crm-chromium",
+      testDir: "./tests/crm-tests",
+      use: {
+        ...devices["Desktop Chromium"],
         viewport: {
           width: 1920,
           height: 1080,
