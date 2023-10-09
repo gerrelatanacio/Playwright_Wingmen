@@ -5,7 +5,8 @@ const email = "demo_wisp_admin@wingmen.dk";
 const password = "Admin1022!";
 
 test.only("TC01_EstimateCreation", async ({ page, homePage, cicsPage }) => {
-  homePage.navigateToHome();
+  await homePage.navigateToHome();
+  await page.waitForTimeout(3000);
 });
 
 test("TC02_Open CICS Configurations", async ({ page, loginPage, homePage }) => {
