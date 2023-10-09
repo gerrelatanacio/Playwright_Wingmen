@@ -7,6 +7,7 @@ const password = "Admin1022!";
 test.only("TC01_EstimateCreation", async ({ page, homePage, cicsPage }) => {
   await homePage.navigateToHome();
   await page.waitForTimeout(3000);
+  await page.waitForTimeout(3000);
 });
 
 test("TC02_Open CICS Configurations", async ({ page, loginPage, homePage }) => {
